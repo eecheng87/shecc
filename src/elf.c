@@ -82,7 +82,10 @@ void elf_generate_header()
     elf_write_header_int(0);          /* EI_PAD: unused */
     elf_write_header_byte(2);         /* ET_EXEC */
     elf_write_header_byte(0);
-    elf_write_header_byte(0x28); /* ARM (up to ARMv7/Aarch32) */
+    if (target_platform == TARGET_RISCV)
+        elf_write_header_byte(0xF3);
+    else if (target_platform == TARGET_ARM)
+        elf_write_header_byte(0x28); /* ARM (up to ARMv7/Aarch32) */
     elf_write_header_byte(0);
     elf_write_header_int(1);                          /* ELF version */
     elf_write_header_int(ELF_START + elf_header_len); /* entry point */

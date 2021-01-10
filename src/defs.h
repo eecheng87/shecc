@@ -28,6 +28,11 @@
 #define ELF_START 0x10000
 #define PTR_SIZE 4
 
+/* target platform */
+#define TARGET_ARM 1
+#define TARGET_RISCV 2
+int target_platform = TARGET_ARM;
+
 /* builtin types */
 typedef enum { TYPE_void = 0, TYPE_int, TYPE_char, TYPE_struct } base_type_t;
 

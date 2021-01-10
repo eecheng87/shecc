@@ -62,7 +62,12 @@ bootstrap: $(OUT)/$(STAGE2)
 	echo "Unable to bootstrap. Aborting"; false; \
 	fi
 
-.PHONY: clean
+bench:
+	@out/shecc --arm -o bench tests/hello.c
+	@chmod +x bench
+	@qemu-arm bench
+
+.PHONY: clean bench
 clean:
 	-$(RM) $(OUT)/$(STAGE0) $(OUT)/$(STAGE1) $(OUT)/$(STAGE2)
 	-$(RM) $(OBJS) $(deps)
