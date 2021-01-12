@@ -17,6 +17,7 @@
 #define __syscall_write 64
 #define __syscall_close 57
 #define __syscall_open 1024
+#define __syscall_openat 56
 #define __syscall_brk 214
 #endif
 
@@ -325,9 +326,21 @@ void abort()
 FILE *fopen(char *filename, char *mode)
 {
     if (!strcmp(mode, "wb"))
+#ifdef __arm__
         return __syscall(__syscall_open, filename, 65, 0x1fd);
+#endif
+/* FIXME: mode not work currently in riscv */
+#ifdef __riscv
+    return __syscall(__syscall_openat, -100, filename, 65, 0x1fd);
+#endif
     if (!strcmp(mode, "rb"))
+#ifdef __arm__
         return __syscall(__syscall_open, filename, 0, 0);
+#endif
+#ifdef __riscv
+    return __syscall(__syscall_openat, -100, filename, 0, 0);
+#endif
+
     abort();
 }
 

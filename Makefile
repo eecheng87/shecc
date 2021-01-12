@@ -5,6 +5,7 @@ CFLAGS := -O -g \
 
 include mk/common.mk
 include mk/arm.mk
+include mk/riscv.mk
 
 STAGE0 := shecc
 STAGE1 := shecc-stage1.elf
@@ -26,7 +27,7 @@ $(OUT)/tests/%.elf: tests/%.c $(OUT)/$(STAGE0)
 	$(VECHO) "  SHECC\t$@\n"
 	$(Q)$(OUT)/$(STAGE0) --dump-ir -o $@ $< > $(basename $@).log ; \
 	chmod +x $@ ; $(PRINTF) "Running $@ ...\n"
-	$(Q)$(ARM_EXEC) $@ && $(call pass)
+	$(Q)$(RISCV_EXEC) $@ && $(call pass)
 
 check: $(TESTBINS) tests/driver.sh
 	tests/driver.sh
@@ -55,9 +56,10 @@ $(OUT)/$(STAGE1): $(OUT)/$(STAGE0)
 
 $(OUT)/$(STAGE2): $(OUT)/$(STAGE1)
 	$(VECHO) "  SHECC\t$@\n"
-	$(Q)$(ARM_EXEC) $(OUT)/$(STAGE1) -o $@ $(SRCDIR)/main.c
+	$(Q)$(RISCV_EXEC) $(OUT)/$(STAGE1) -o $@ $(SRCDIR)/main.c
 
 bootstrap: $(OUT)/$(STAGE2)
+	$(Q)chmod 775 $(OUT)/$(STAGE2)
 	$(Q)if ! diff -q $(OUT)/$(STAGE1) $(OUT)/$(STAGE2); then \
 	echo "Unable to bootstrap. Aborting"; false; \
 	fi

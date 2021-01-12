@@ -100,20 +100,17 @@ int get_code_length(ir_instr_t *ii)
         block_t *blk = &BLOCKS[ii->int_param1];
         return (blk->next_local > 0) ? 4 : 0;
     }
+    case OP_syscall:
+        return 20;
     case OP_eq:
     case OP_neq:
     case OP_lt:
     case OP_leq:
     case OP_gt:
     case OP_geq:
-        return 12;
-    case OP_syscall:
-        return 20;
     case OP_func_exit:
         return 16;
     case OP_exit:
-    case OP_mod:
-    case OP_log_not:
         return 12;
     case OP_load_data_address:
     case OP_jz:
@@ -129,10 +126,12 @@ int get_code_length(ir_instr_t *ii)
     case OP_sub:
     case OP_mul:
     case OP_div:
+    case OP_mod:
     case OP_read:
     case OP_write:
     case OP_log_or:
     case OP_log_and:
+    case OP_log_not:
     case OP_bit_or:
     case OP_bit_and:
     case OP_bit_xor:
@@ -175,7 +174,6 @@ void code_generate()
     int code_start = elf_code_start; /* ELF headers size */
     int data_start = total_code_length();
     size_funcs(code_start + data_start);
-
     for (i = 0; i < ir_idx; i++) {
         var_t *var;
         func_t *fn;
@@ -310,7 +308,7 @@ void code_generate()
 
             emit(__jal(__ra, ofs));
             if (dest_reg != __a0)
-                emit(__addi(dest_reg, __a0, 0));
+                emit(__add(dest_reg, __zero, OP_reg));
             if (dump_ir == 1)
                 printf("    x%d := %s() @ %d", dest_reg, ii->str_param1,
                        fn->entry_point);
@@ -355,10 +353,14 @@ void code_generate()
                 printf("    x%d *= x%d", dest_reg, OP_reg);
             break;
         case OP_div:
-            /* FIXME: unimplemented */
+            emit(__div(dest_reg, dest_reg, OP_reg));
+            if (dump_ir == 1)
+                printf("    x%d /= x%d", dest_reg, OP_reg);
             break;
         case OP_mod:
-            /* FIXME: unimplemented */
+            emit(__mod(dest_reg, dest_reg, OP_reg));
+            if (dump_ir == 1)
+                printf("    x%d = x%d mod x%d", dest_reg, dest_reg, OP_reg);
             break;
         case OP_negate:
             emit(__sub(dest_reg, __zero, dest_reg));
@@ -455,10 +457,14 @@ void code_generate()
                 printf("    x%d |= x%d", dest_reg, OP_reg);
             break;
         case OP_bit_xor:
-            /* FIXME: unimplemented */
+            emit(__xor(dest_reg, dest_reg, OP_reg));
+            if (dump_ir == 1)
+                printf("    x%d ^= x%d", dest_reg, OP_reg);
             break;
         case OP_bit_not:
-            /* FIXME: unimplemented */
+            emit(__xori(dest_reg, dest_reg, -1));
+            if (dump_ir == 1)
+                printf("    x%d ~= x%d", dest_reg, OP_reg);
             break;
         case OP_lshift:
             emit(__sll(dest_reg, dest_reg, OP_reg));
@@ -575,7 +581,7 @@ void code_generate()
                 printf("    syscall");
             break;
         case OP_exit:
-            emit(__addi(__a0, __zero, 0));
+            emit(__add(__a0, __zero, OP_reg));
             emit(__addi(__a7, __zero, 93));
             emit(__ecall());
             if (dump_ir == 1)

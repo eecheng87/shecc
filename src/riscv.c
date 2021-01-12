@@ -48,7 +48,9 @@ typedef enum {
     rv_ecall = 115 /* 0b1110011 */,
     rv_ebreak = 1048691 /* 0b1110011 + (1 << 20) */,
     /* m */
-    rv_mul = 33554483 /* 0b0110011 + (1 << 25) */
+    rv_mul = 33554483 /* 0b0110011 + (1 << 25) */,
+    rv_div = 33570867 /* 0b0110011 + (1 << 25) + (4 << 12) */,
+    rv_mod = 33579059 /* 0b0110011 + (1 << 25) + (6 << 12) */
 } rv_op;
 
 /* registers */
@@ -383,4 +385,14 @@ int __nop()
 int __mul(rv_reg rd, rv_reg rs1, rv_reg rs2)
 {
     return rv_encode_R(rv_mul, rd, rs1, rs2);
+}
+
+int __div(rv_reg rd, rv_reg rs1, rv_reg rs2)
+{
+    return rv_encode_R(rv_div, rd, rs1, rs2);
+}
+
+int __mod(rv_reg rd, rv_reg rs1, rv_reg rs2)
+{
+    return rv_encode_R(rv_mod, rd, rs1, rs2);
 }
