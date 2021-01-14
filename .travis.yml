@@ -14,7 +14,8 @@ addons:
     sources:
       - sourceline: "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-updates main universe"
     packages:
-      - qemu-user=4.2.0
+      - qemu-arm=4.2.0
+      - qemu-riscv32=4.2.0
 
 before_install:
   - sudo apt-get install -y build-essential
