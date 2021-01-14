@@ -10,7 +10,7 @@ compiler:
   - gcc
 
 env:
-  - QEMU_VERSION=2.7.0
+  - QEMU_VERSION=4.2.0
 addons:
   apt:
     sources:
