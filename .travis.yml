@@ -13,12 +13,14 @@ addons:
   apt:
     sources:
       - sourceline: "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-updates main universe"
-    packages:
-      - qemu-user-static=2.0.0
+    #packages:
+    #  - qemu-user
 
 before_install:
   - sudo apt-get install -y build-essential
   - sudo apt-get install -y clang-format-6.0
+  - sudo apt install qemu-user
+
 
 
 script:
